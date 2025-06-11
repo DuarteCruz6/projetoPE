@@ -24,7 +24,14 @@ dados$sqrt_citric_acid <- sqrt(dados$`citric.acid`)
 
 #criar o boxplot com pontos sobrepostos deslocados (jitter)
 ggplot(dados, aes(x = factor(quality), y = sqrt_citric_acid)) +
-  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +  #boxplot + outliers a vermelho
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(
+    color = "red",
+    width = 0.2,
+    alpha = 0.5,
+    size = 1.5,
+    data = subset(dados, sqrt_citric_acid %in% boxplot.stats(dados$sqrt_citric_acid)$out)
+  ) +
   labs(
     title = "Relation between the square root of citric.acid and the wine quality",
     x = "Wine's quality",
