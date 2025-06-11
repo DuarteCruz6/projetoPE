@@ -17,25 +17,43 @@
 library(ggplot2)
 
 #ler o ficheiro
-dados <- read.csv("pergunta1/winequality-white-q5.csv", header = TRUE, sep = ",")
+wine_data <- read.csv("pergunta1/winequality-white-q5.csv")
 
 #adicionar uma nova coluna com a raiz quadrada do ácido cítrico
-dados$sqrt_citric_acid <- sqrt(dados$`citric.acid`)
+get_boxplot_outliers <- function(data, x_var, y_var) {
+  outliers_df <- data.frame()
+  unique_x_values <- unique(data[[x_var]])
+  for (val in unique_x_values) {
+    subset_data <- data[data[[x_var]] == val, ]
+    y_values <- subset_data[[y_var]]
+    
+    q1 <- quantile(y_values, 0.25, na.rm = TRUE)
+    q3 <- quantile(y_values, 0.75, na.rm = TRUE)
+    iqr <- q3 - q1
+    lower_bound <- q1 - 1.5 * iqr
+    upper_bound <- q3 + 1.5 * iqr
+    
+    current_outliers <- subset_data[(y_values < lower_bound | y_values > upper_bound), ]
+    if (nrow(current_outliers) > 0) {
+      outliers_df <- rbind(outliers_df, current_outliers)
+    }
+  }
+  return(outliers_df)
+}
 
-#criar o boxplot com pontos sobrepostos deslocados (jitter)
-ggplot(dados, aes(x = factor(quality), y = sqrt_citric_acid)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter(
-    color = "red",
-    width = 0.2,
-    alpha = 0.5,
-    size = 1.5,
-    data = subset(dados, sqrt_citric_acid %in% boxplot.stats(dados$sqrt_citric_acid)$out)
-  ) +
+wine_data$sqrt_citric_acid <- sqrt(wine_data$citric.acid)
+outliers_data <- get_boxplot_outliers(wine_data, "quality", "sqrt_citric_acid")
+
+
+ggplot(wine_data, aes(x = factor(quality), y = sqrt(citric.acid))) +
+  geom_boxplot(outlier.shape = NA) + 
+  geom_jitter(data = outliers_data,
+              aes(x = factor(quality), y = sqrt_citric_acid, color = "red"),
+              width = 0.2, height = 0, alpha = 0.7, size = 2) + #tirar sobreposição
   labs(
-    title = "Relation between the square root of citric.acid and the wine quality",
-    x = "Wine's quality",
-    y = "Square root of citric.acid"
+    title = "Relationship between Square Root of Citric Acid and Wine Quality",
+    x = "Wine Quality (1 = poor, 5 = excellent)",
+    y = "Square Root of Citric Acid",
   ) +
   theme_minimal()
 ggsave("boxplot_vinho.png", width = 8, height = 5)

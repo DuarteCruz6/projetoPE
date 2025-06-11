@@ -24,34 +24,34 @@ library(readxl)
 dados <- read_excel("pergunta2/wine_prod_EU.xlsx")
 
 #remover observações com Category em falta ou Product Group == "Non-Vinified"
-dados_limpos <- dados[!is.na(dados$Category) & dados$`Product Group` != "Non-Vinified", ]
+df_wine_cleaned <- subset(dados, !is.na(Category))
+df_wine_cleaned <- subset(df_wine_cleaned, `Product Group` != "Non-Vinified")
 
 #filtrar apenas o ano de 2016
-dados_2016 <- dados_limpos[dados_limpos$Year == 2016, ]
+df_2016 <- subset(df_wine_cleaned, Year == 2016)
 
 #criar nova coluna para agrupar países
-dados_2016$CountryGroup <- ifelse(
-  dados_2016$`Member State` %in% c("France", "Italy", "Spain", "Portugal"),
-  dados_2016$`Member State`,
-  "Others"
-)
+df_2016$Country_Group <- ifelse(df_2016$`Member State` == "France", "France",
+                                 ifelse(df_2016$`Member State` == "Italy", "Italy",
+                                        ifelse(df_2016$`Member State` == "Spain", "Spain",
+                                               ifelse(df_2016$`Member State` == "Portugal", "Portugal", "Others"))))
 
 #agrupar e somar Availability por CountryGroup
-resumo <- aggregate(
-  Availability ~ CountryGroup,
-  data = dados_2016,
-  sum,
-  na.rm = TRUE
-)
+df_plot_data <- aggregate(Availability ~ Category + Country_Group, data = df_2016, FUN = sum, na.rm = TRUE)
+
+df_plot_data$Country_Group <- factor(df_plot_data$Country_Group,
+                                     levels = c("France", "Italy", "Spain", "Portugal", "Others"))
 
 #criar gráfico de barras
-ggplot(resumo, aes(x = CountryGroup, y = Availability, fill = CountryGroup)) +
+wine_plot <- ggplot(df_plot_data, aes(x = Category, y = Availability, fill = Country_Group)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(
-    title = "Wine Availability in 2016 by Category and Country Group",
-    x = "Country Group",
+    title = "Wine Availability by Category and Country Group in 2016",
+    x = "Wine Category",
     y = "Availability (10^3 hL)",
+    fill = "Country Group"
   ) +
-  theme_minimal()
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Roda as legendas do eixo X para melhor leitura
 
 ggsave("grafico_vinho.png", width = 8, height = 5)
