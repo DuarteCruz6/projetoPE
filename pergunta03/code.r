@@ -21,7 +21,7 @@
 library(ggplot2)
 
 #ler o ficheiro
-dados <- read.csv("pergunta3/clima.csv", header = TRUE, sep = ",")
+dados <- read.csv("pergunta03/clima.csv", header = TRUE, sep = ",")
 
 #converter a coluna Data para o formato datetime
 dados$Data <- as.POSIXct(dados$Data, format = "%Y-%m-%d %H:%M:%S")
@@ -58,4 +58,4 @@ ggplot() +
     caption = "Linha azul: variação horária | Linha vermelha: mediana diária"
   ) +
   theme_minimal()
-ggsave("pergunta3/grafico.png", width = 8, height = 5)
+ggsave("pergunta03/grafico.png", width = 8, height = 5)

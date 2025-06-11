@@ -17,7 +17,7 @@
 library(ggplot2)
 
 #ler o ficheiro
-wine_data <- read.csv("pergunta1/winequality-white-q5.csv")
+wine_data <- read.csv("pergunta01/winequality-white-q5.csv")
 
 #adicionar uma nova coluna com a raiz quadrada do ácido cítrico
 get_boxplot_outliers <- function(data, x_var, y_var) {
@@ -56,4 +56,4 @@ ggplot(wine_data, aes(x = factor(quality), y = sqrt(citric.acid))) +
     y = "Square Root of Citric Acid",
   ) +
   theme_minimal()
-ggsave("boxplot_vinho.png", width = 8, height = 5)
+ggsave("pergunta01/boxplot_vinho.png", width = 8, height = 5)

@@ -21,7 +21,7 @@ library(ggplot2)
 library(readxl)
 
 #ler o ficheiro
-dados <- read_excel("pergunta2/wine_prod_EU.xlsx")
+dados <- read_excel("pergunta02/wine_prod_EU.xlsx")
 
 #remover observações com Category em falta ou Product Group == "Non-Vinified"
 df_wine_cleaned <- subset(dados, !is.na(Category))
@@ -54,4 +54,4 @@ wine_plot <- ggplot(df_plot_data, aes(x = Category, y = Availability, fill = Cou
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Roda as legendas do eixo X para melhor leitura
 
-ggsave("grafico_vinho.png", width = 8, height = 5)
+ggsave("pergunta02/grafico_vinho.png", width = 8, height = 5)
